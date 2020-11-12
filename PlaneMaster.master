@@ -1,0 +1,57 @@
+<%@ Master Language="VB" CodeFile="PlaneMaster.master.vb" Inherits="lgPlaneMasterPage" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+  <title></title>
+  <link rel="SHORTCUT ICON" type="image/x-icon" runat="server" href="~/isgec.ico" />
+  <link rel="stylesheet" href="/../UserRights/Menu/Menu.css" />
+  <script type="text/javascript" src="/../UserRights/jquery/jquery.js"></script>
+  <link rel="stylesheet" href="/../UserRights/jquery/themes/smoothness/jquery-ui.css" />
+  <script type="text/javascript" src="/../UserRights/jquery/jquery-ui.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $(".page").resizable();
+    });
+  </script>
+  <asp:ContentPlaceHolder ID="cphMain" runat="server" EnableViewState="true">
+  </asp:ContentPlaceHolder>
+</head>
+<body>
+  <form id="form1" runat="server">
+  <ASP:ScriptManager ID="ToolkitScriptManager1" EnableScriptGlobalization="true" runat="server" EnablePageMethods="true" AsyncPostBackTimeout="3600" EnableScriptLocalization="True" ScriptMode="Auto">
+    <Scripts>
+        <asp:ScriptReference Path="/../UserRights/jquery/webkit.js" />
+    </Scripts>
+  </ASP:ScriptManager>
+  <LGM:LGLoading ID="LGLoadingM" runat="server" />
+  <script type="text/javascript">
+    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(hideProcessingMPV);
+    Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(showProcessingMPV);
+    function groupClicked(p) {
+      var tbl = p.parentElement.parentElement;
+      var o = p.parentElement.rowIndex;
+      for (ii = 0; ii <= tbl.rows.length - 1; ii++) {
+        if (ii > o) {
+          if (tbl.rows[ii].id != '')
+            return;
+          if (tbl.rows[ii].style.display == 'none')
+            tbl.rows[ii].style.display = '';
+          else
+            tbl.rows[ii].style.display = 'none';
+        }
+      }
+    }
+  </script>
+  <div id="divmain" class="master_table">
+    <table style="width: 100%">
+      <tr>
+        <td class="sis_body" runat="server" id="mainBody">
+          <asp:ContentPlaceHolder ID="cph1" runat="server" EnableViewState="true">
+          </asp:ContentPlaceHolder>
+        </td>
+      </tr>
+    </table>
+  </div>
+  </form>
+</body>
+</html>
