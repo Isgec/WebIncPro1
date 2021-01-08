@@ -38,6 +38,56 @@ Namespace SIS.INC
     Public Property IsReturned As Boolean = False
     Public Property ProcessedBy As String = ""
     Private _ProcessedOn As String = ""
+    Private _SoldOn As String = ""
+    Private _TaxInvoiceDate As String = ""
+    Private _RtgsNeftDate As String = ""
+    Public Property TaxInvoiceNo As String = ""
+    Public Property RtgsNeftNo As String = ""
+    Public Property RtgsNeftDate() As String
+      Get
+        If Not _RtgsNeftDate = String.Empty Then
+          Return Convert.ToDateTime(_RtgsNeftDate).ToString("dd/MM/yyyy")
+        End If
+        Return _RtgsNeftDate
+      End Get
+      Set(ByVal value As String)
+        If Convert.IsDBNull(value) Then
+          _RtgsNeftDate = ""
+        Else
+          _RtgsNeftDate = value
+        End If
+      End Set
+    End Property
+    Public Property TaxInvoiceDate() As String
+      Get
+        If Not _TaxInvoiceDate = String.Empty Then
+          Return Convert.ToDateTime(_TaxInvoiceDate).ToString("dd/MM/yyyy")
+        End If
+        Return _TaxInvoiceDate
+      End Get
+      Set(ByVal value As String)
+        If Convert.IsDBNull(value) Then
+          _TaxInvoiceDate = ""
+        Else
+          _TaxInvoiceDate = value
+        End If
+      End Set
+    End Property
+    Public Property SoldOn() As String
+      Get
+        If Not _SoldOn = String.Empty Then
+          Return Convert.ToDateTime(_SoldOn).ToString("dd/MM/yyyy")
+        End If
+        Return _SoldOn
+      End Get
+      Set(ByVal value As String)
+        If Convert.IsDBNull(value) Then
+          _SoldOn = ""
+        Else
+          _SoldOn = value
+        End If
+      End Set
+    End Property
     Public Property ProcessedOn() As String
       Get
         If Not _ProcessedOn = String.Empty Then
@@ -269,6 +319,11 @@ Namespace SIS.INC
         .SaleAmount = Record.SaleAmount
         .RealisedAmount = Record.RealisedAmount
         .SoldTo = Record.SoldTo
+        .SoldOn = Record.SoldOn
+        .TaxInvoiceDate = Record.TaxInvoiceDate
+        .TaxInvoiceNo = Record.TaxInvoiceNo
+        .RtgsNeftDate = Record.RtgsNeftDate
+        .RtgsNeftNo = Record.RtgsNeftNo
         .BankID = Record.BankID
         .StatusID = enumInvStates.Free
         .CreatedBy = Global.System.Web.HttpContext.Current.Session("LoginID")
@@ -293,7 +348,12 @@ Namespace SIS.INC
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SaleAmount",SqlDbType.Decimal,17, Record.SaleAmount)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RealisedAmount",SqlDbType.Decimal,17, Record.RealisedAmount)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SoldTo",SqlDbType.NVarChar,51, Iif(Record.SoldTo= "" ,Convert.DBNull, Record.SoldTo))
-          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@BankID",SqlDbType.Int,11, Iif(Record.BankID= "" ,Convert.DBNull, Record.BankID))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RtgsNeftNo", SqlDbType.NVarChar, 51, IIf(Record.RtgsNeftNo = "", Convert.DBNull, Record.RtgsNeftNo))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RtgsNeftDate", SqlDbType.DateTime, 21, IIf(Record.RtgsNeftDate = "", Convert.DBNull, Record.RtgsNeftDate))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@TaxInvoiceNo", SqlDbType.NVarChar, 51, IIf(Record.TaxInvoiceNo = "", Convert.DBNull, Record.TaxInvoiceNo))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@TaxInvoiceDate", SqlDbType.DateTime, 21, IIf(Record.TaxInvoiceDate = "", Convert.DBNull, Record.TaxInvoiceDate))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SoldOn", SqlDbType.DateTime, 21, IIf(Record.SoldOn = "", Convert.DBNull, Record.SoldOn))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@BankID", SqlDbType.Int, 11, IIf(Record.BankID = "", Convert.DBNull, Record.BankID))
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@StatusID",SqlDbType.Int,11, Record.StatusID)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@MEIS_LineNo",SqlDbType.NVarChar,51, Iif(Record.MEIS_LineNo= "" ,Convert.DBNull, Record.MEIS_LineNo))
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@CreatedBy",SqlDbType.NVarChar,9, Record.CreatedBy)
@@ -332,6 +392,11 @@ Namespace SIS.INC
         .SaleAmount = Record.SaleAmount
         .RealisedAmount = Record.RealisedAmount
         .SoldTo = Record.SoldTo
+        .SoldOn = Record.SoldOn
+        .TaxInvoiceDate = Record.TaxInvoiceDate
+        .TaxInvoiceNo = Record.TaxInvoiceNo
+        .RtgsNeftDate = Record.RtgsNeftDate
+        .RtgsNeftNo = Record.RtgsNeftNo
         .BankID = Record.BankID
         .CreatedBy = Global.System.Web.HttpContext.Current.Session("LoginID")
         .CreatedOn = Now
@@ -356,7 +421,12 @@ Namespace SIS.INC
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SaleAmount",SqlDbType.Decimal,17, Record.SaleAmount)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RealisedAmount",SqlDbType.Decimal,17, Record.RealisedAmount)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SoldTo",SqlDbType.NVarChar,51, Iif(Record.SoldTo= "" ,Convert.DBNull, Record.SoldTo))
-          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@BankID",SqlDbType.Int,11, Iif(Record.BankID= "" ,Convert.DBNull, Record.BankID))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RtgsNeftNo", SqlDbType.NVarChar, 51, IIf(Record.RtgsNeftNo = "", Convert.DBNull, Record.RtgsNeftNo))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@RtgsNeftDate", SqlDbType.DateTime, 21, IIf(Record.RtgsNeftDate = "", Convert.DBNull, Record.RtgsNeftDate))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@TaxInvoiceNo", SqlDbType.NVarChar, 51, IIf(Record.TaxInvoiceNo = "", Convert.DBNull, Record.TaxInvoiceNo))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@TaxInvoiceDate", SqlDbType.DateTime, 21, IIf(Record.TaxInvoiceDate = "", Convert.DBNull, Record.TaxInvoiceDate))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@SoldOn", SqlDbType.DateTime, 21, IIf(Record.SoldOn = "", Convert.DBNull, Record.SoldOn))
+          SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@BankID", SqlDbType.Int, 11, IIf(Record.BankID = "", Convert.DBNull, Record.BankID))
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@StatusID",SqlDbType.Int,11, Record.StatusID)
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@MEIS_LineNo",SqlDbType.NVarChar,51, Iif(Record.MEIS_LineNo= "" ,Convert.DBNull, Record.MEIS_LineNo))
           SIS.SYS.SQLDatabase.DBCommon.AddDBParameter(Cmd, "@CreatedBy",SqlDbType.NVarChar,9, Record.CreatedBy)

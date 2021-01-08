@@ -103,6 +103,19 @@ Namespace SIS.INC
       End Using
       Return mRet
     End Function
+    Public Shadows ReadOnly Property DisplayWFVisible() As Boolean
+      Get
+        Dim mRet As Boolean = False
+        Try
+          Select Case StatusID
+            Case enumInvStates.Processed, enumInvStates.DBKRealized, enumInvStates.MEISRealized, enumInvStates.Completed
+              mRet = True
+          End Select
+        Catch ex As Exception
+        End Try
+        Return mRet
+      End Get
+    End Property
     Public Shadows ReadOnly Property ProcessWFVisible() As Boolean
       Get
         Dim mRet As Boolean = False
@@ -184,8 +197,8 @@ Namespace SIS.INC
       End Using
       Return mRet
     End Function
-    Public Shared Function GetVchData(SNs As String, FWDBatchNo As Integer, RtnBatchNo As Integer) As List(Of SIS.INC.vchData)
-      Dim Results As New List(Of SIS.INC.vchData)
+    Public Shared Function GetVchData(SNs As String, FWDBatchNo As Integer, RtnBatchNo As Integer, Optional Processed As Boolean = False) As List(Of SIS.TA.vchData)
+      Dim Results As New List(Of SIS.TA.vchData)
       Dim Sql As String = ""
       Sql &= "  Select "
       Sql &= "    DivisionID, "
@@ -193,7 +206,11 @@ Namespace SIS.INC
       Sql &= "    Sum(DBKAmountProvisional) as DAmt, "
       Sql &= "    Sum(MEISAmount) as MAmt "
       Sql &= "  From INC_Provision "
-      Sql &= "  Where StatusID=" & enumInvStates.Submitted
+      If Not Processed Then
+        Sql &= "  Where StatusID =" & enumInvStates.Submitted
+      Else
+        Sql &= "  Where StatusID IN (3,4,5,6) "
+      End If
       If SNs <> "" Then
         Sql &= " AND SerialNo IN (" & SNs & ")"
       Else
@@ -215,7 +232,7 @@ Namespace SIS.INC
           Dim I As Integer = 0
           Dim Reader As SqlDataReader = Cmd.ExecuteReader()
           While (Reader.Read())
-            Results.Add(New SIS.INC.vchData(Reader))
+            Results.Add(New SIS.TA.vchData(Reader))
           End While
           Reader.Close()
         End Using
@@ -265,192 +282,5 @@ Namespace SIS.INC
       Dim _Result As SIS.INC.incProvisionProcess = incProvisionProcessUpdate(Record)
       Return _Result
     End Function
-  End Class
-  Public Class vchDB
-    Public Property dbk As New List(Of SIS.INC.vchData)
-    Public Property meis As New List(Of SIS.INC.vchData)
-  End Class
-  Public Class vchData
-    Public Property Seq As Integer = 0
-    Public Property DivisionID As String = ""
-    Public Property GLCode As String = ""
-    Public Property BankName As String = ""
-    Public Property ProjectCode As String = ""
-    Public Property State As String = "UP"
-    Public Property Amt As String = ""
-    Public Property DAmt As String = ""
-    Public Property MAmt As String = ""
-    Public Property DrCr As String = ""
-    Public Property Remarks As String = ""
-    Public Shared Function GetHTML(xData As List(Of SIS.INC.vchData), IsDBK As Boolean) As String
-      Dim mRet As String = ""
-      mRet &= "<div class='x-div'>"
-      mRet &= "<table class='x-tbl'>"
-      mRet &= "<tr class='x-h-tbl'>"
-      mRet &= "<td>Unit</td><td>GL Code</td><td>Dim-1</td><td>Dim-5</td><td>Amount</td><td>Dr/Cr</td><td>Remarks</td></tr>"
-      For Each xd As SIS.INC.vchData In xData
-        '1. Debit Row
-        mRet &= "<tr class='x-d1-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        If IsDBK Then
-          mRet &= "<td>1550248</td>"
-        Else
-          mRet &= "<td>1550247</td>"
-        End If
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        If IsDBK Then
-          mRet &= "<td>" & xd.DAmt & "</td>"
-        Else
-          mRet &= "<td>" & xd.MAmt & "</td>"
-        End If
-        mRet &= "<td>Debit</td>"
-        If IsDBK Then
-          mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        Else
-          mRet &= "<td>" & "MRIS Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        End If
-        mRet &= "</tr>"
-        '2 Credit Row
-        mRet &= "<tr class='x-d2-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        If IsDBK Then
-          mRet &= "<td>5622110</td>"
-        Else
-          mRet &= "<td>5622110</td>"
-        End If
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        If IsDBK Then
-          mRet &= "<td>" & xd.DAmt & "</td>"
-        Else
-          mRet &= "<td>" & xd.MAmt & "</td>"
-        End If
-        mRet &= "<td>Credit</td>"
-        If IsDBK Then
-          mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        Else
-          mRet &= "<td>" & "MRIS Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        End If
-        mRet &= "</tr>"
-      Next
-      mRet &= "</table></div>"
-      Return mRet
-    End Function
-
-    Public Shared Function GetHTMLDBK(xData As List(Of SIS.INC.vchData)) As String
-      Dim mRet As String = ""
-      mRet &= "<div class='x-div'>"
-      mRet &= "<table class='x-tbl'>"
-      mRet &= "<tr class='x-h-tbl'>"
-      mRet &= "<td>Unit</td><td>GL Code</td><td>Dim-1</td><td>Dim-5</td><td>Amount</td><td>Dr/Cr</td><td>Remarks</td></tr>"
-      For Each xd As SIS.INC.vchData In xData
-        'A Realization
-        '1. Debit Row
-        mRet &= "<tr class='x-d1-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>" & xd.GLCode & "</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Debit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & ", " & xd.BankName & "</td>"
-        mRet &= "</tr>"
-        '2 Credit Row
-        mRet &= "<tr class='x-d2-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>5622110</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Credit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & ", " & xd.BankName & "</td>"
-        mRet &= "</tr>"
-        'B Provision Reversal
-        '1. Debit Row
-        mRet &= "<tr class='x-d1-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>5622110</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.MAmt & "</td>"
-        mRet &= "<td>Debit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        mRet &= "</tr>"
-        '2 Credit Row
-        mRet &= "<tr class='x-d2-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>1550248</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Credit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        mRet &= "</tr>"
-      Next
-      mRet &= "</table></div>"
-      Return mRet
-    End Function
-
-    Public Shared Function GetHTMLMEIS(xData As List(Of SIS.INC.vchData)) As String
-      Dim mRet As String = ""
-      mRet &= "<div class='x-div'>"
-      mRet &= "<table class='x-tbl'>"
-      mRet &= "<tr class='x-h-tbl'>"
-      mRet &= "<td>Unit</td><td>GL Code</td><td>Dim-1</td><td>Dim-5</td><td>Amount</td><td>Dr/Cr</td><td>Remarks</td></tr>"
-      For Each xd As SIS.INC.vchData In xData
-        'A Realization
-        '1. Debit Row
-        mRet &= "<tr class='x-d1-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>" & xd.GLCode & "</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Debit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & ", " & xd.BankName & "</td>"
-        mRet &= "</tr>"
-        '2 Credit Row
-        mRet &= "<tr class='x-d2-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>1550247</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Credit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & ", " & xd.BankName & "</td>"
-        mRet &= "</tr>"
-        'B Provision Reversal
-        '1. Debit Row
-        mRet &= "<tr class='x-d1-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>1550247</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.MAmt & "</td>"
-        mRet &= "<td>Debit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        mRet &= "</tr>"
-        '2 Credit Row
-        mRet &= "<tr class='x-d2-tbl'>"
-        mRet &= "<td>" & xd.DivisionID & "</td>"
-        mRet &= "<td>1550248</td>"
-        mRet &= "<td>" & xd.ProjectCode & "</td>"
-        mRet &= "<td>UP</td>"
-        mRet &= "<td>" & xd.DAmt & "</td>"
-        mRet &= "<td>Credit</td>"
-        mRet &= "<td>" & "DBK Provision " & Now.ToString("MMM") & " " & Now.Year & "</td>"
-        mRet &= "</tr>"
-      Next
-      mRet &= "</table></div>"
-      Return mRet
-    End Function
-
-    Public Sub New(rd As SqlDataReader)
-      SIS.SYS.SQLDatabase.DBCommon.NewObj(Me, rd)
-    End Sub
-    Public Sub New()
-
-    End Sub
   End Class
 End Namespace

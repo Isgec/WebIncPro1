@@ -209,7 +209,7 @@ Namespace SIS.INC
       Using Con As SqlConnection = New SqlConnection(SIS.SYS.SQLDatabase.DBCommon.GetBaaNConnectionString())
         Using Cmd As SqlCommand = Con.CreateCommand()
           Cmd.CommandType = CommandType.Text
-          Cmd.CommandText = "select isnull(t_cdf_divs,'') from ttppdm600" & Comp & " where t_cprj='" & cprj & "'"
+          Cmd.CommandText = "select isnull(t_ncmp,'') from ttppdm600" & Comp & " where t_cprj='" & cprj & "'"
           Con.Open()
           mRet = Cmd.ExecuteScalar
         End Using

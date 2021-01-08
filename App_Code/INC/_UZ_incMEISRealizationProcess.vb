@@ -103,6 +103,19 @@ Namespace SIS.INC
       End Using
       Return mRet
     End Function
+    Public Shadows ReadOnly Property DisplayWFVisible() As Boolean
+      Get
+        Dim mRet As Boolean = False
+        Try
+          Select Case StatusID
+            Case enumInvStates.Processed
+              mRet = True
+          End Select
+        Catch ex As Exception
+        End Try
+        Return mRet
+      End Get
+    End Property
     Public Shadows ReadOnly Property ProcessWFVisible() As Boolean
       Get
         Dim mRet As Boolean = False
@@ -204,21 +217,27 @@ Namespace SIS.INC
       End Using
       Return mRet
     End Function
-    Public Shared Function GetVchData(SNs As String, FWDBatchNo As Integer, RtnBatchNo As Integer) As List(Of SIS.INC.vchData)
-      Dim Results As New List(Of SIS.INC.vchData)
+    Public Shared Function GetVchData(SNs As String, FWDBatchNo As Integer, RtnBatchNo As Integer, Optional Processed As Boolean = False) As List(Of SIS.TA.vchData)
+      Dim Results As New List(Of SIS.TA.vchData)
       Dim Sql As String = ""
       Sql &= "  Select "
       Sql &= "    aa.DivisionID, "
       Sql &= "    aa.ProjectCode, "
       Sql &= "    cc.GLCode, "
       Sql &= "    cc.BankName, "
+      Sql &= "    cc.OrganizationUnit as BankComp, "
       Sql &= "    Sum(bb.RealisedAmount) as DAmt, "
       Sql &= "    Sum(aa.MEISAmount) as MAmt "  'Provision Reverse Amount
       Sql &= "  From INC_MEISRealization as bb "
       Sql &= "  inner join INC_Provision as aa on aa.CustomInvoiceNo = bb.CustomInvoiceNo "
       Sql &= "  inner join INC_Banks as cc on cc.BankID = bb.BankID "
-      Sql &= "  Where bb.StatusID=" & enumInvStates.Submitted
-      Sql &= "  AND aa.StatusID IN (3,4) " 'Provision Must Be Processed or MEIS must be reversed. 
+      If Not Processed Then
+        Sql &= "  Where bb.StatusID=" & enumInvStates.Submitted
+        Sql &= "  AND aa.StatusID IN (3,4) " 'Provision Must Be Processed or MEIS must be reversed. 
+      Else
+        Sql &= "  Where bb.StatusID=" & enumInvStates.Processed
+        Sql &= "  AND aa.StatusID IN (5,6) " 'MEIS Realized or completed
+      End If
       If SNs <> "" Then
         Sql &= " AND bb.SerialNo IN (" & SNs & ")"
       Else
@@ -233,7 +252,8 @@ Namespace SIS.INC
       Sql &= "    aa.DivisionID, "
       Sql &= "    aa.ProjectCode, "
       Sql &= "    cc.GLCode, "
-      Sql &= "    cc.BankName "
+      Sql &= "    cc.BankName, "
+      Sql &= "    cc.OrganizationUnit "
       Using Con As SqlConnection = New SqlConnection(SIS.SYS.SQLDatabase.DBCommon.GetConnectionString())
         Using Cmd As SqlCommand = Con.CreateCommand()
           Cmd.CommandType = CommandType.Text
@@ -242,7 +262,7 @@ Namespace SIS.INC
           Dim I As Integer = 0
           Dim Reader As SqlDataReader = Cmd.ExecuteReader()
           While (Reader.Read())
-            Results.Add(New SIS.INC.vchData(Reader))
+            Results.Add(New SIS.TA.vchData(Reader))
           End While
           Reader.Close()
         End Using

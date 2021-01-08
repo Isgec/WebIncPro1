@@ -9,4 +9,9 @@ Public Enum enumInvStates
   Completed = 6
   Returned = 7
 End Enum
-
+Public Enum enumVoucherData
+  PostingMode = 1
+  ErrorMode = 2
+  DisplayMode = 3
+  None = 4
+End Enum

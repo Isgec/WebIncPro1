@@ -259,6 +259,7 @@
           </HeaderTemplate>
           <ItemTemplate>
             <asp:ImageButton ID="cmdProcessWF" runat="server" Visible='<%# Eval("ProcessWFVisible") %>' AlternateText='<%# EVal("PrimaryKey") %>' ToolTip="Process" SkinID="forward" CommandName="ProcessWF" CommandArgument='<%# Container.DataItemIndex %>' />
+            <asp:ImageButton ID="cmdDisplayWF" runat="server" Visible='<%# Eval("DisplayWFVisible") %>' AlternateText='<%# EVal("PrimaryKey") %>' ToolTip="Display" SkinID="info"    CommandName="DisplayWF" CommandArgument='<%# Container.DataItemIndex %>' />
           </ItemTemplate>
           <ItemStyle CssClass="alignCenter" />
           <HeaderStyle CssClass="alignCenter" Width="30px" />
@@ -303,7 +304,8 @@
 </asp:UpdatePanel>
 </div>
 </div>
-  <style>
+  <LGM:LC_PostVoucher ID="PostVoucher" runat="server" />
+<%--  <style>
     .x-div{
       font-family:Tahoma;
       font-size:12px;
@@ -358,7 +360,7 @@
       <asp:AsyncPostBackTrigger ControlID="cmdOK" EventName="Click" />
     </Triggers>
   </asp:UpdatePanel>
-
+--%>
   <script>
     try {hideProcessingMPV();}catch (e){}
   </script>

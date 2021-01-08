@@ -1,7 +1,7 @@
 Imports System.Web.Script.Serialization
 Partial Class GF_incDBKRealizationProcess
   Inherits SIS.SYS.GridBase
-  Dim ShowPopup As Boolean = False
+  Dim ShowPopup As enumVoucherData = enumVoucherData.None
   Public Property SNos As String
     Get
       If ViewState("SNos") IsNot Nothing Then
@@ -96,22 +96,43 @@ Partial Class GF_incDBKRealizationProcess
         ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize(ex.Message) & "');", True)
       End Try
     End If
-
-    If e.CommandName.ToLower = "ProcessWF".ToLower Then
+    If e.CommandName.ToLower = "DisplayWF".ToLower Then
       Try
         SNos = ""
         Dim SerialNo As Int32 = GVincDBKRealizationProcess.DataKeys(e.CommandArgument).Values("SerialNo")
-        Dim x As List(Of SIS.INC.vchData) = SIS.INC.incDBKRealizationProcess.GetVchData(SerialNo, 0, 0)
+        Dim x As List(Of SIS.TA.vchData) = SIS.INC.incDBKRealizationProcess.GetVchData(SerialNo, 0, 0, True)
         If x.Count > 0 Then
           SNos = SerialNo
           Dim sAmt As Decimal = x.Sum(Function(t) t.DAmt)
           Dim str As String = "<h3> DBK Realization: " & sAmt & "</h3>"
-          modalContent.Controls.Add(New LiteralControl(str))
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
           sAmt = x.Sum(Function(t) t.MAmt)
           str = "<h3> DBK Provision Reversal: " & sAmt & "</h3>"
-          modalContent.Controls.Add(New LiteralControl(str))
-          modalContent.Controls.Add(New LiteralControl(SIS.INC.vchData.GetHTMLDBK(x)))
-          ShowPopup = True
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(SIS.TA.vchData.GetHTMLDBK(x)))
+          ShowPopup = enumVoucherData.DisplayMode
+        Else
+          ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize("No record Found / Selected.") & "');", True)
+        End If
+      Catch ex As Exception
+        ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize(ex.Message) & "');", True)
+      End Try
+    End If
+    If e.CommandName.ToLower = "ProcessWF".ToLower Then
+      Try
+        SNos = ""
+        Dim SerialNo As Int32 = GVincDBKRealizationProcess.DataKeys(e.CommandArgument).Values("SerialNo")
+        Dim x As List(Of SIS.TA.vchData) = SIS.INC.incDBKRealizationProcess.GetVchData(SerialNo, 0, 0)
+        If x.Count > 0 Then
+          SNos = SerialNo
+          Dim sAmt As Decimal = x.Sum(Function(t) t.DAmt)
+          Dim str As String = "<h3> DBK Realization: " & sAmt & "</h3>"
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
+          sAmt = x.Sum(Function(t) t.MAmt)
+          str = "<h3> DBK Provision Reversal: " & sAmt & "</h3>"
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
+          PostVoucher.DisplayContent.Controls.Add(New LiteralControl(SIS.TA.vchData.GetHTMLDBK(x)))
+          ShowPopup = enumVoucherData.PostingMode
         Else
           ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize("No record Found / Selected.") & "');", True)
         End If
@@ -120,24 +141,24 @@ Partial Class GF_incDBKRealizationProcess
       End Try
     End If
     If e.CommandName.ToLower = "ProcessSelected".ToLower Then
-      Dim x As List(Of SIS.INC.vchData) = GetList()
+      Dim x As List(Of SIS.TA.vchData) = GetList()
       If x.Count > 0 Then
         Dim sAmt As Decimal = x.Sum(Function(t) t.DAmt)
         Dim str As String = "<h3> DBK Realization: " & sAmt & "</h3>"
-        modalContent.Controls.Add(New LiteralControl(str))
+        PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
         sAmt = x.Sum(Function(t) t.MAmt)
         str = "<h3> DBK Provision Reversal: " & sAmt & "</h3>"
-        modalContent.Controls.Add(New LiteralControl(str))
-        modalContent.Controls.Add(New LiteralControl(SIS.INC.vchData.GetHTMLDBK(x)))
-        ShowPopup = True
+        PostVoucher.DisplayContent.Controls.Add(New LiteralControl(str))
+        PostVoucher.DisplayContent.Controls.Add(New LiteralControl(SIS.TA.vchData.GetHTMLDBK(x)))
+        ShowPopup = enumVoucherData.PostingMode
       Else
         ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize("No record Found / Selected.") & "');", True)
       End If
     End If
   End Sub
-  Private Sub cmdOK_Click(sender As Object, e As EventArgs) Handles cmdOK.Click
+  Private Sub PostVoucher_execute(vchDt As String) Handles PostVoucher.Execute
     Try
-      Dim x As List(Of SIS.INC.vchData) = Nothing
+      Dim x As List(Of SIS.TA.vchData) = Nothing
       Dim y As SIS.TA.taPostVoucherResult = Nothing
       Dim VchBatch As Integer = 0
       Dim Filter_FwdBatchNo As Integer = 0
@@ -162,7 +183,7 @@ Partial Class GF_incDBKRealizationProcess
       If x IsNot Nothing Then
         If x.Count > 0 Then
           VchBatch = SIS.INC.incDBKRealizationProcess.GetNextVchBatchNo()
-          y = SIS.TA.taVoucher.CreateAndPostDBKRealization(x, Now.ToString("dd/MM/yyyy"), VchBatch)
+          y = SIS.TA.taVoucher.CreateAndPostDBKRealization(x, vchDt, VchBatch)
         End If
       End If
       If y IsNot Nothing Then
@@ -182,8 +203,8 @@ Partial Class GF_incDBKRealizationProcess
       ScriptManager.RegisterClientScriptBlock(Page, Page.GetType(), "", "alert('" & New JavaScriptSerializer().Serialize(ex.Message) & "');", True)
     End Try
   End Sub
-  Public Function GetList() As List(Of SIS.INC.vchData)
-    Dim mRet As New List(Of SIS.INC.vchData)
+  Public Function GetList() As List(Of SIS.TA.vchData)
+    Dim mRet As New List(Of SIS.TA.vchData)
     SNos = ""
     If Not chkAllSubmitted.Checked Then
       Dim SNs As String = ""
@@ -253,9 +274,8 @@ Partial Class GF_incDBKRealizationProcess
   End Sub
 
   Private Sub GF_incDBKRealizationProcess_PreRender(sender As Object, e As EventArgs) Handles Me.PreRender
-    If ShowPopup Then
-      HeaderText.Text = "Voucher Details"
-      mPopup.Show()
+    If ShowPopup <> enumVoucherData.None Then
+      PostVoucher.Show(ShowPopup)
     End If
   End Sub
 End Class

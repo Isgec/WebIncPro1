@@ -58,7 +58,7 @@
       </tr>
       <tr>
         <td class="alignright">
-          <asp:Label ID="L_OrganizationUnit" runat="server" Text="Organization Unit :" />&nbsp;
+          <asp:Label ID="L_OrganizationUnit" runat="server" Text="ISGEC Organization Unit :" />&nbsp;
         </td>
         <td colspan="3">
           <asp:TextBox ID="F_OrganizationUnit"

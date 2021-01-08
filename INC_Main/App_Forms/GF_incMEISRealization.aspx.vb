@@ -241,9 +241,9 @@ Err:
     End If
   End Sub
   Private Sub UploadBankData(wsD As ExcelWorksheet)
-    Dim bankFields() As String = {"Serial No", "Custom Invoice No", "S-Bill No", "S-Bill Date", "File No", "File Date", "MEIS No", "MEIS Date", "MEIS Amount", "Other Tax", "Sale Amount", "Realised Amount", "Sold To", "Bank ID", "MEIS Batch No", "MEIS DocumentNo", "MEIS LineNo"}
+    Dim bankFields() As String = {"S.No.", "Custom Invoice no.", "S. bill no.", "Date", "File no.", "Date", "MEIS no.", "Date", "MEIS amount", "GST/TCS/other tax", "sale amount", "realized amount", "Sold to ", "sold on", "Tax Invoice no.", "Tax Invoice date", "RTGS/NEFT No.", "Date"}
     For i = 0 To bankFields.Count - 1
-      If wsD.Cells(8, i + 1).Text <> bankFields(i) Then
+      If wsD.Cells(8, i + 1).Text.ToLower <> bankFields(i).ToLower Then
         Throw New Exception("Fields in EXCEL do not match with Bank Stmt. discussed for Upload here.")
       End If
     Next
@@ -259,7 +259,7 @@ Err:
     End Try
     Dim nBatch As Integer = SIS.INC.incMEISRealization.GetNextBatchNo
     Dim cDt As DateTime = Now
-    For I As Integer = 8 To 99000
+    For I As Integer = 9 To 99000
       Dim CInvNo As String = wsD.Cells(I, 2).Text
       If CInvNo = String.Empty Then Exit For
       Dim xPro As SIS.INC.incMEISRealization = SIS.INC.incMEISRealization.GetByCommercialInvoiceNo(CInvNo)
@@ -294,11 +294,11 @@ Err:
         .SaleAmount = wsD.Cells(I, 11).Text
         .RealisedAmount = wsD.Cells(I, 12).Text
         .SoldTo = wsD.Cells(I, 13).Text
-        '.soldon = wsD.Cells(I, 14).Text
-        '.TaxInvoiceNo = wsD.Cells(I, 15).Text
-        '.TaxInvoiceDate = wsD.Cells(I, 16).Text
-        '.RTGSNo = wsD.Cells(I, 17).Text
-        '.RTGSDate = wsD.Cells(I, 18).Text
+        .SoldOn = wsD.Cells(I, 14).Text
+        .TaxInvoiceNo = wsD.Cells(I, 15).Text
+        .TaxInvoiceDate = wsD.Cells(I, 16).Text
+        .RtgsNeftNo = wsD.Cells(I, 17).Text
+        .RtgsNeftDate = wsD.Cells(I, 18).Text
       End With
       If Not Found Then
         xPro = SIS.INC.incMEISRealization.InsertData(xPro)
@@ -309,7 +309,7 @@ Err:
   End Sub
   Private Function UploadMEISRealization(wsD As ExcelWorksheet) As String
     Dim RetStr As String = ""
-    Dim xlFields() As String = {"SerialNo", "CustomInvoiceNo", "SBillNo", "SBillDate", "FileNo", "FileDate", "MEISNo", "MEISDate", "MEISAmount", "OtherTax", "SaleAmount", "RealisedAmount", "SoldTo", "BankID"}
+    Dim xlFields() As String = {"SerialNo", "CustomInvoiceNo", "SBillNo", "SBillDate", "FileNo", "FileDate", "MEISNo", "MEISDate", "MEISAmount", "OtherTax", "SaleAmount", "RealisedAmount", "SoldTo", "SoldOn", "TaxInvoiceNo", "TaxInvoiceDate", "RtgsNeftNo", "RtgsNeftDate", "BankID"}
     Dim nBatch As Integer = SIS.INC.incMEISRealization.GetNextBatchNo
     Dim cDt As DateTime = Now
     For I As Integer = 2 To 99000
