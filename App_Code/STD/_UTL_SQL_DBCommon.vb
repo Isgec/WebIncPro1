@@ -9,9 +9,9 @@ Namespace SIS.SYS.SQLDatabase
     Public Shared Function GetBaaNConnectionString() As String
       Dim BaaNLive As Boolean = Convert.ToBoolean(ConfigurationManager.AppSettings("BaaNLive"))
       If BaaNLive Then
-        Return "Data Source=192.9.200.129;Initial Catalog=inforerpdb;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=lalit;Password=scorpions"
+        Return "Data Source=ganesha;Initial Catalog=inforerpdb;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=lalit;Password=scorpions"
       Else
-        Return "Data Source=192.9.200.45;Initial Catalog=inforerpdb;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=lalit;Password=scorpions"
+        Return "Data Source=gstdrill04;Initial Catalog=inforerpdb;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=lalit;Password=scorpions"
       End If
     End Function
     Public Shared Function GetConnectionString() As String
@@ -20,11 +20,11 @@ Namespace SIS.SYS.SQLDatabase
       If JoomlaLive Then
         Select Case HttpContext.Current.Session("FinanceCompany")
           Case "700"
-            Return "Data Source=192.9.200.150;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
           Case "651"
-            Return "Data Source=192.9.200.150;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
           Case Else
-            Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
         End Select
       Else
         Select Case HttpContext.Current.Session("FinanceCompany")
@@ -42,11 +42,11 @@ Namespace SIS.SYS.SQLDatabase
       If JoomlaLive Then
         Select Case Comp
           Case "700"
-            Return "Data Source=192.9.200.150;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=REDECAM;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
           Case "651"
-            Return "Data Source=192.9.200.150;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=ICL;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
           Case Else
-            Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+            Return "Data Source=perk03;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
         End Select
       Else
         Select Case Comp
@@ -63,7 +63,7 @@ Namespace SIS.SYS.SQLDatabase
       Dim JoomlaLive As Boolean = Convert.ToBoolean(ConfigurationManager.AppSettings("JoomlaLive"))
 
       If JoomlaLive Then
-        Return "Data Source=192.9.200.150;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
+        Return "Data Source=perk03;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
       Else
         Return "Data Source=.\LGSQL;Initial Catalog=IJTPerks;Integrated Security=False;User Instance=False;Persist Security Info=True;User ID=sa;Password=isgec12345"
       End If
